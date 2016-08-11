@@ -11,18 +11,8 @@ if p.exists():
 
 def test_init():
     pidom = PiDom()
-    assert pidom._verbose is False
     assert pidom._register == dict()
-    assert pidom._id_available == set(range(0x00A0A400, 0x00A0A400 + 10))
-
-    pidom = PiDom(verbose=False)
-    assert pidom._verbose is False
-    assert pidom._register == dict()
-    assert pidom._id_available == set(range(0x00A0A400, 0x00A0A400 + 10))
-
-    pidom = PiDom(verbose=True)
-    assert pidom._verbose is True
-    assert pidom._register == dict()
+    assert pidom._groups == dict()
     assert pidom._id_available == set(range(0x00A0A400, 0x00A0A400 + 10))
 
 

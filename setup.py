@@ -39,7 +39,7 @@ except:
              " I test my library on a Rasp Pi 1 B+.")
 
 setup(
-    name='pi-dom',
+    name='pidom',
     version=pidom.__version__,
     author=pidom.__author__,
     author_email='oprax@me.com',
