@@ -13,7 +13,7 @@ import pickle
 from pathlib import Path
 
 __all__ = ['PiDom']
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 __author__ = "Oprax"
 
 
@@ -45,7 +45,7 @@ class PiDom(object):
         try:
             subprocess.run(args, check=True, stdout=subprocess.PIPE)
         except subprocess.CalledProcessError as e:
-        	print("https://github.com/Oprax/pidom#Install")
+            print("https://github.com/Oprax/pidom#install")
             raise e
 
     def _sanitize(self, names):
