@@ -20,9 +20,7 @@ __author__ = "Oprax"
 class PiDom(object):
     """This class is a wrapper around `emit`"""
     def __init__(self):
-        """
-        Create property and call `PiDom.restore`
-        """
+        """Create property and call `PiDom.restore`"""
         self._bak = Path('~/.pidom.bin').expanduser()
         self._register = dict()
         self._groups = dict()
@@ -52,8 +50,13 @@ class PiDom(object):
 
     def _sanitize(self, names):
         """
-        Can accept a device, a list of devices or a group
-        So we parse args to return a list
+        Parse argument to return a list,
+        args could be a device name, a group or just a list of devices
+
+        :param names: a device name, a group or list of devices
+        :param type: str | iterable
+        :return: return a list of device(s)
+        :rtype: iterable
         """
         if isinstance(names, str):
             if names in self._groups.keys():
@@ -91,7 +94,8 @@ class PiDom(object):
                 self._register[name]['device_id'])
 
     def switch_on(self, names):
-        """Turn on a device or a group of devices
+        """
+        Turn on a device or a group of devices
 
         :param names: Name(s) of device(s)
         :type names: str | iterable
@@ -101,28 +105,36 @@ class PiDom(object):
             self._change_state_device(name, state=True)
 
     def switch_off(self, names):
-        """Turn off a device or a group of devices
+        """
+        Turn off a device or a group of devices
 
         :param names: Name(s) of device(s)
-        :type names: str | iterable"""
+        :type names: str | iterable
+        """
         names = self._sanitize(names)
         for name in names:
             self._change_state_device(name, state=False)
 
     def toggle(self, names):
-        """Reverse state of a device"""
+        """
+        Reverse state of a device
+
+        :param names: Name(s) of device(s)
+        :type names: str | iterable
+        """
         names = self._sanitize(names)
         for name in names:
             new_state = not self._register[name]['state']
             self._change_state_device(name, state=new_state)
 
     def synchronize(self, name):
-        """Synchronize a new switch and register him.
+        """
+        Synchronize a new device and add it to register.
 
-        When a switch is plugged in,
+        When a Chacon is plugged in,
         while 5 seconds he listen and wait his id.
 
-        :param name: Most easy than 0x00A0A408
+        :param name: device name given by user, most easy than 0x00A0A408
         :type name: str
         :return: Id of the device
         :rtype: int
@@ -153,7 +165,7 @@ class PiDom(object):
             self.unsynchronize(name)
 
     def reset(self):
-        """Reset all switch in register"""
+        """Reset all device in register"""
         for name in self._register.keys():
             self.switch_off(name)
 
@@ -161,7 +173,7 @@ class PiDom(object):
         """
         Return the state of device by name
 
-        :param name: Device
+        :param name: device name
         :type name: str
         :return: State of device
         :rtype: bool
@@ -179,7 +191,14 @@ class PiDom(object):
         return list(self._groups.keys())
 
     def new_group(self, group_name, devices):
-        """A group is a list of device"""
+        """
+        A group is a list of device
+
+        :param group_name: group name given by user
+        :param devices: list of device in a group
+        :type group_name: str
+        :type devices: iterable
+        """
         self._groups[group_name] = set()
         for device in devices:
             if device in self._register.keys():
@@ -187,6 +206,11 @@ class PiDom(object):
                 self._groups[group_name].add(device)
 
     def rm_group(self, group_name):
-        """Remove the list"""
+        """
+        Remove the list
+
+        :param group_name: group name given by user
+        :type group_name: str
+        """
         self.switch_off(group_name)
         del self._groups[group_name]
