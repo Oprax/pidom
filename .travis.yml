@@ -15,7 +15,7 @@ install: travis_retry pip install tox-travis
 
 before_script:
   - echo "#!/bin/sh" > emit
-  - cp -f emit /usr/local/bin/.
-  - chmod +x /usr/local/bin/emit
+  - sudo cp -f emit /usr/local/bin/.
+  - sudo chmod +x /usr/local/bin/emit
 
 script: tox
