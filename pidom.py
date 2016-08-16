@@ -12,9 +12,47 @@ import pickle
 
 from pathlib import Path
 
-__all__ = ['PiDom']
-__version__ = "0.1.1"
+__all__ = ['PiDom', 'event']
+__version__ = "0.2.0"
 __author__ = "Oprax"
+
+
+def event(name):
+    """
+    Pattern Observer with decorator,
+    can execute function when event fire
+
+    :param name: name of event
+    :type name: str
+    :rtype: function
+    """
+    event.sub = getattr(event, 'sub', dict())
+
+    event.trigger = lambda e, data: [f(e, data) for f in event.sub[e]]
+
+    def decorator(func):
+        event.sub.setdefault(name, []).append(func)
+        return func
+
+    return decorator
+
+
+@event('pidom.update')
+def update(*args, **kwargs):
+    """
+    This function register 'pidom.update' event.
+    This event is send each time a switch is turn on/off.
+    """
+    pass
+
+
+@event('pidom.delete')
+def delete(*args, **kwargs):
+    """
+    This function register 'pidom.delete' event.
+    This event is send each time a switch is unsynchronize.
+    """
+    pass
 
 
 class PiDom(object):
@@ -47,6 +85,7 @@ class PiDom(object):
         except subprocess.CalledProcessError as e:
             print("https://github.com/Oprax/pidom#install")
             raise e
+        event.trigger('pidom.update', {'name': name, 'state': state})
 
     def _sanitize(self, names):
         """
@@ -158,6 +197,7 @@ class PiDom(object):
         self._id_available.add(
             self._register[name]['device_id'])
         del self._register[name]
+        event.trigger('pidom.delete', {'name': name, 'state': False})
 
     def clear(self):
         """Unsynchronize all device in register"""
