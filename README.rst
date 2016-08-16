@@ -36,6 +36,20 @@ The goal of the project is to create a library can easely communicate with Chaco
     pidom.toggle('living-room') # switch on 'tv' & 'light'
     pidom.backup() # save device and group with pickle in '~/.pidom.bin'
 
+    # Use some event
+    from pidom import event
+
+    @event('pidom.update')
+    def print_data(ev, data):
+        print("{} change state for : {}".format(
+            data['name'], data['state']))
+
+    pidom.toggle('living-room')
+    # print this :
+    # light change state for : False
+    # tv change state for : False
+
+
 
 More example in ``test_pidom.py``.
 
