@@ -3,6 +3,7 @@
 from pathlib import Path
 
 from pidom import PiDom
+from pidom import event
 
 p = Path('~/.pidom.bin').expanduser()
 if p.exists():
@@ -11,17 +12,6 @@ if p.exists():
 
 def test_init():
     pidom = PiDom()
-    assert pidom._verbose is False
-    assert pidom._register == dict()
-    assert pidom._id_available == set(range(0x00A0A400, 0x00A0A400 + 10))
-
-    pidom = PiDom(verbose=False)
-    assert pidom._verbose is False
-    assert pidom._register == dict()
-    assert pidom._id_available == set(range(0x00A0A400, 0x00A0A400 + 10))
-
-    pidom = PiDom(verbose=True)
-    assert pidom._verbose is True
     assert pidom._register == dict()
     assert pidom._id_available == set(range(0x00A0A400, 0x00A0A400 + 10))
 
@@ -110,3 +100,23 @@ def test_group():
     assert pidom.state(device_name1) is False
     assert pidom.state(device_name2) is False
     assert group_name not in pidom._groups.keys()
+
+
+def test_event():
+    pidom = PiDom()
+    device_name = 'test'
+
+    @event('pidom.update')
+    def up(ev, data):
+        assert ev == 'pidom.update'
+        assert device_name == data['name']
+        assert pidom.state(device_name) == data['state']
+
+    @event('pidom.delete')
+    def de(ev, data):
+        assert ev == 'pidom.delete'
+        assert device_name == data['name']
+
+    pidom.synchronize(device_name)
+    pidom.toggle(device_name)
+    pidom.unsynchronize(device_name)
