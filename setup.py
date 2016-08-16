@@ -32,7 +32,7 @@ class Tox(TestCommand):
 
 
 try:
-    ldesc = open('README.md').read()
+    ldesc = open('README.rst').read()
 except:
     ldesc = ("The goal of the project is to create a library can "
              "easely communicate with Chacon 54795 using HomeEasy protocol."
