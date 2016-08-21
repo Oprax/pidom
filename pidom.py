@@ -139,6 +139,8 @@ class PiDom(object):
 
         :param names: Name(s) of device(s)
         :type names: str | iterable
+        :return: all devices updated
+        :rtype: list
         """
         names = self._sanitize(names)
         res = list()
@@ -153,6 +155,8 @@ class PiDom(object):
 
         :param names: Name(s) of device(s)
         :type names: str | iterable
+        :return: all devices updated
+        :rtype: list
         """
         names = self._sanitize(names)
         res = list()
@@ -165,7 +169,9 @@ class PiDom(object):
         """
         Reverse state of a device
 
-        :param names: Name(s) of device(s)
+        :param names: Name(s) of device
+        :return: all devices updated
+        :rtype: list(s)
         :type names: str | iterable
         """
         names = self._sanitize(names)

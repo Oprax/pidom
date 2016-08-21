@@ -31,22 +31,15 @@ class Tox(TestCommand):
         sys.exit(errno)
 
 
-try:
-    ldesc = open('README.md').read()
-except:
-    ldesc = ("The goal of the project is to create a library can "
-             "easely communicate with Chacon 54795 using HomeEasy protocol."
-             " I test my library on a Rasp Pi 1 B+.")
-
 setup(
-    name='pi-dom',
+    name='pidom',
     version=pidom.__version__,
     author=pidom.__author__,
     author_email='oprax@me.com',
     description=pidom.__doc__,
     py_modules=['pidom'],
-    long_description=ldesc,
-    license='https://opensource.org/licenses/MIT',
+    long_description=open('README.rst').read(),
+    license=pidom.__license__,
     include_package_data=True,
     tests_require=['tox'],
     cmdclass={'test': Tox},
