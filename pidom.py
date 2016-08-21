@@ -2,8 +2,8 @@
 
 """
 Pi-Dom is module to make domotic with RPi and.
-With use emit from `http://www.noopy.fr/raspberry-pi/domotique/`
-`emit` can communicate with Chacon 54795
+With use emit from `<http://www.noopy.fr/raspberry-pi/domotique/>`_
+``emit`` can communicate with Chacon 54795
 """
 
 import time
@@ -13,8 +13,9 @@ import pickle
 from pathlib import Path
 
 __all__ = ['PiDom', 'event']
-__version__ = "0.2.0"
+__version__ = "0.3.1"
 __author__ = "Oprax"
+__license__ = "MIT"
 
 
 def event(name):
@@ -62,7 +63,7 @@ class PiDom(object):
         self._bak = Path('~/.pidom.bin').expanduser()
         self._register = dict()
         self._groups = dict()
-        self._id_available = set(range(0x00A0A400, 0x00A0A400 + 10))
+        self._id_available = set(range(0x00A0A400, 0x00A0A400 + 20))
         self.restore()
 
     def _change_state_device(self, name, state=True):
@@ -140,8 +141,11 @@ class PiDom(object):
         :type names: str | iterable
         """
         names = self._sanitize(names)
+        res = list()
         for name in names:
             self._change_state_device(name, state=True)
+            res.append(dict(name=name, state=True))
+        return res
 
     def switch_off(self, names):
         """
@@ -151,8 +155,11 @@ class PiDom(object):
         :type names: str | iterable
         """
         names = self._sanitize(names)
+        res = list()
         for name in names:
             self._change_state_device(name, state=False)
+            res.append(dict(name=name, state=False))
+        return res
 
     def toggle(self, names):
         """
@@ -162,9 +169,12 @@ class PiDom(object):
         :type names: str | iterable
         """
         names = self._sanitize(names)
+        res = list()
         for name in names:
             new_state = not self._register[name]['state']
             self._change_state_device(name, state=new_state)
+            res.append(dict(name=name, state=new_state))
+        return res
 
     def synchronize(self, name):
         """
@@ -178,6 +188,9 @@ class PiDom(object):
         :return: Id of the device
         :rtype: int
         """
+        if name in self._register.keys():
+            raise ValueError("name '{}' already used !".format(name))
+
         device_id = self._id_available.pop()
         self._register[name] = {
             'device_id': device_id,
@@ -191,18 +204,20 @@ class PiDom(object):
         self.switch_off(name)
         return device_id
 
-    def unsynchronize(self, name):
+    def unsynchronize(self, name, del_entry=True):
         """Remove the device from register and place id on list of available"""
         self.switch_off(name)
         self._id_available.add(
             self._register[name]['device_id'])
-        del self._register[name]
+        if del_entry:
+            del self._register[name]
         event.trigger('pidom.delete', {'name': name, 'state': False})
 
     def clear(self):
         """Unsynchronize all device in register"""
         for name in self._register.keys():
-            self.unsynchronize(name)
+            self.unsynchronize(name, del_entry=False)
+        self._register.clear()
 
     def reset(self):
         """Reset all device in register"""
@@ -222,13 +237,21 @@ class PiDom(object):
 
     @property
     def devices(self):
-        """Return a list of device"""
+        """
+        Return a list of device
+
+        :rtype: list
+        """
         return list(self._register.keys())
 
     @property
     def groups(self):
-        """Return a list of group"""
-        return list(self._groups.keys())
+        """
+        Return a list of group
+
+        :rtype: dict
+        """
+        return dict(self._groups)
 
     def new_group(self, group_name, devices):
         """

@@ -13,7 +13,7 @@ if p.exists():
 def test_init():
     pidom = PiDom()
     assert pidom._register == dict()
-    assert pidom._id_available == set(range(0x00A0A400, 0x00A0A400 + 10))
+    assert pidom._id_available == set(range(0x00A0A400, 0x00A0A400 + 20))
 
 
 def test_synchronize():
