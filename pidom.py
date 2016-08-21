@@ -13,7 +13,7 @@ import pickle
 from pathlib import Path
 
 __all__ = ['PiDom', 'event']
-__version__ = "0.3.1"
+__version__ = "0.3.2"
 __author__ = "Oprax"
 __license__ = "MIT"
 
@@ -103,7 +103,7 @@ class PiDom(object):
                 names = self._groups[names]
             else:
                 names = [names]
-        return names
+        return [name.strip() for name in names]
 
     def backup(self):
         """
@@ -194,6 +194,7 @@ class PiDom(object):
         :return: Id of the device
         :rtype: int
         """
+        name = name.strip()
         if name in self._register.keys():
             raise ValueError("name '{}' already used !".format(name))
 
@@ -212,6 +213,7 @@ class PiDom(object):
 
     def unsynchronize(self, name, del_entry=True):
         """Remove the device from register and place id on list of available"""
+        name = name.strip()
         self.switch_off(name)
         self._id_available.add(
             self._register[name]['device_id'])
