@@ -6,7 +6,7 @@ Pi-Dom
    :target: https://travis-ci.org/Oprax/pidom
 
 .. image:: https://img.shields.io/badge/license-MIT-blue.svg
-    :target: https://raw.githubusercontent.com/Oprax/pidom/master/LICENSE
+    :target: https://github.com/Oprax/pidom/blob/master/LICENSE
 
 .. image:: https://img.shields.io/pypi/v/pidom.svg?maxAge=2592000
    :target: https://pypi.python.org/pypi/pidom
