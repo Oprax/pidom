@@ -13,7 +13,7 @@ import pickle
 from pathlib import Path
 
 __all__ = ['PiDom', 'event']
-__version__ = "0.3.2"
+__version__ = "0.4.0"
 __author__ = "Oprax"
 __license__ = "MIT"
 
@@ -86,7 +86,9 @@ class PiDom(object):
         except subprocess.CalledProcessError as e:
             print("https://github.com/Oprax/pidom#install")
             raise e
-        event.trigger('pidom.update', {'name': name, 'state': state})
+        trig_data = dict(name=name)
+        trig_data.update(self._register[name])
+        event.trigger('pidom.update', trig_data)
 
     def _sanitize(self, names):
         """
@@ -217,9 +219,24 @@ class PiDom(object):
         self.switch_off(name)
         self._id_available.add(
             self._register[name]['device_id'])
+
+        trig_data = dict(name=name)
+        trig_data.update(self._register[name])
+        event.trigger('pidom.delete', trig_data)
+
         if del_entry:
             del self._register[name]
-        event.trigger('pidom.delete', {'name': name, 'state': False})
+
+    def rename(self, old_name, new_name):
+        self._register[new_name] = dict(self._register[old_name])
+        if 'groups' in self._register[new_name].keys():
+            for group in self._register[new_name]['groups']:
+                self._groups[group].remove(old_name)
+                self._groups[group].add(new_name)
+        del self._register[old_name]
+        trig_data = dict(name=new_name)
+        trig_data.update(self._register[new_name])
+        event.trigger('pidom.update', trig_data)
 
     def clear(self):
         """Unsynchronize all device in register"""
@@ -274,6 +291,9 @@ class PiDom(object):
         for device in devices:
             if device in self._register.keys():
                 self.switch_off(device)
+                if 'groups' not in self._register[device].keys():
+                    self._register[device]['groups'] = set()
+                self._register[device]['groups'].add(group_name)
                 self._groups[group_name].add(device)
 
     def rm_group(self, group_name):
@@ -284,4 +304,13 @@ class PiDom(object):
         :type group_name: str
         """
         self.switch_off(group_name)
+        for device in self._groups[group_name]:
+            self._register[device]['groups'].remove(group_name)
         del self._groups[group_name]
+
+    def rename_group(self, old_name, new_name):
+        for device in self._groups[old_name]:
+            self._register[device]['groups'].remove(old_name)
+            self._register[device]['groups'].add(new_name)
+        self._groups[new_name] = set(self._groups[old_name])
+        del self._groups[old_name]

@@ -77,6 +77,8 @@ def test_group():
     assert pidom.state(device_name2) is False
     assert device_name1 in pidom._groups[group_name]
     assert device_name2 in pidom._groups[group_name]
+    assert group_name in pidom._register[device_name1]['groups']
+    assert group_name in pidom._register[device_name2]['groups']
 
     pidom.switch_on(group_name)
     assert pidom.state(device_name1) is True
@@ -100,6 +102,34 @@ def test_group():
     assert pidom.state(device_name1) is False
     assert pidom.state(device_name2) is False
     assert group_name not in pidom._groups.keys()
+    assert group_name not in pidom._register[device_name1]['groups']
+    assert group_name not in pidom._register[device_name2]['groups']
+
+
+def test_rename():
+    pidom = PiDom()
+    old_device = 'bar'
+    new_device = 'baz'
+    old_group = 'foo'
+    new_group = 'fuu'
+    pidom.synchronize(old_device)
+    pidom.new_group(old_group, [old_device])
+
+    pidom.switch_on(old_device)
+    assert pidom.state(old_device) is True
+
+    pidom.rename(old_device, new_device)
+    assert old_device not in pidom._register.keys()
+    assert new_device in pidom._register.keys()
+    assert pidom.state(new_device) is True
+    assert old_device not in pidom._groups[old_group]
+    assert new_device in pidom._groups[old_group]
+
+    pidom.rename_group(old_group, new_group)
+    assert old_group not in pidom._groups.keys()
+    assert new_group in pidom._groups.keys()
+    assert old_group not in pidom._register[new_device]['groups']
+    assert new_group in pidom._register[new_device]['groups']
 
 
 def test_event():
