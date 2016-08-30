@@ -2,15 +2,18 @@
 
 from pathlib import Path
 
+import pytest
+
 from pidom import PiDom
 from pidom import event
 
+
 p = Path('~/.pidom.bin').expanduser()
-if p.exists():
-    p.unlink()
 
 
 def test_init():
+    if p.exists():
+        p.unlink()
     pidom = PiDom()
     assert pidom._register == dict()
     assert pidom._id_available == set(range(0x00A0A400, 0x00A0A400 + 20))
@@ -25,15 +28,21 @@ def test_synchronize():
     assert device_name == 'test'
     device_id = pidom._register[device_name]['device_id']
     assert device_id not in pidom._id_available
+
+    pidom.backup()
+
     pidom.unsynchronize('test')
     assert len(pidom.devices) == 0
     assert device_id in pidom._id_available
 
 
 def test_switch():
-    pidom = PiDom()
+    pidom = PiDom()  # Restore automatically
     device_name = 'test'
-    pidom.synchronize(device_name)
+    with pytest.raises(ValueError) as excinfo:
+        pidom.synchronize(device_name)
+        excinfo.match("name '{}' already used !".format(device_name))
+
     assert pidom.state(device_name) is False
     pidom.switch_on(device_name)
     assert pidom.state(device_name) is True
@@ -42,9 +51,8 @@ def test_switch():
 
 
 def test_toggle():
-    pidom = PiDom()
+    pidom = PiDom()  # Restore automatically
     device_name = 'test'
-    pidom.synchronize(device_name)
     assert pidom.state(device_name) is False
     pidom.toggle(device_name)
     assert pidom.state(device_name) is True
@@ -53,9 +61,8 @@ def test_toggle():
 
 
 def test_reset():
-    pidom = PiDom()
+    pidom = PiDom()  # Restore automatically
     device_name = 'test'
-    pidom.synchronize(device_name)
     assert pidom.state(device_name) is False
     pidom.toggle(device_name)
     assert pidom.state(device_name) is True
@@ -79,6 +86,7 @@ def test_group():
     assert device_name2 in pidom._groups[group_name]
     assert group_name in pidom._register[device_name1]['groups']
     assert group_name in pidom._register[device_name2]['groups']
+    assert pidom._groups == pidom.groups
 
     pidom.switch_on(group_name)
     assert pidom.state(device_name1) is True
@@ -135,6 +143,10 @@ def test_rename():
 def test_event():
     pidom = PiDom()
     device_name = 'test'
+
+    pidom.clear()  # clear backup
+    assert pidom._register == dict()
+    pidom.backup()
 
     @event('pidom.update')
     def up(ev, data):
