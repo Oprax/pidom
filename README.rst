@@ -5,6 +5,9 @@ Pi-Dom
 .. image:: https://img.shields.io/travis/Oprax/pidom/master.svg?maxAge=2592000
    :target: https://travis-ci.org/Oprax/pidom
 
+.. image:: https://img.shields.io/coveralls/Oprax/pidom.svg?maxAge=2592000
+   :target: https://coveralls.io/github/Oprax/pidom
+
 .. image:: https://img.shields.io/badge/license-MIT-blue.svg
     :target: https://github.com/Oprax/pidom/blob/master/LICENSE
 
